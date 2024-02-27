@@ -22,6 +22,9 @@ try
 {
     var dbContext = services.GetRequiredService<StoreContext>();
     await dbContext.Database.MigrateAsync();
+    #region Seed database
+    await StoreContextSeed.SeedDatabaseAsync(dbContext);
+    #endregion
 }
 catch (Exception ex)
 {
