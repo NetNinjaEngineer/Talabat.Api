@@ -14,6 +14,22 @@ builder.Services.AddDbContext<StoreContext>(options =>
 
 var app = builder.Build();
 
+#region Update Database
+using var scope = app.Services.CreateScope();
+var services = scope.ServiceProvider;
+var loggerFactory = services.GetRequiredService<ILoggerFactory>();
+try
+{
+    var dbContext = services.GetRequiredService<StoreContext>();
+    await dbContext.Database.MigrateAsync();
+}
+catch (Exception ex)
+{
+    var logger = loggerFactory.CreateLogger<Program>();
+    logger.LogError(ex, "An Error Occured During Apply The Migrations");
+}
+#endregion
+
 #region Configure the HTTP request pipeline. 
 if (app.Environment.IsDevelopment())
 {
