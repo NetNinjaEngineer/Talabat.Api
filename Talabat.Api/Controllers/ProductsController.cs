@@ -18,7 +18,7 @@ namespace Talabat.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetAllProductsAsync()
+        public async Task<ActionResult<IEnumerable<ProductToReturnDto>>> GetAllProductsAsync()
         {
             var specification = new ProductWithTypeAndBrandSpecifications();
             var products = await _productRepository.GetAllWithSpecificationAsync(specification);
@@ -27,11 +27,12 @@ namespace Talabat.Api.Controllers
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<Product>> GetProductById(int id)
+        public async Task<ActionResult<ProductToReturnDto>> GetProductById(int id)
         {
             var specification = new ProductWithTypeAndBrandSpecifications(id);
             var product = await _productRepository.GetByIdWithSpecification(specification);
-            return Ok(product);
+            var mappedProduct = _mapper.Map<Product, ProductToReturnDto>(product);
+            return Ok(mappedProduct);
         }
     }
 }
