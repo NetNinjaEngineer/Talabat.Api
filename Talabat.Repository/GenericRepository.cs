@@ -6,11 +6,10 @@ using Talabat.Repository.Data;
 
 namespace Talabat.Repository
 {
-    public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
+    public class GenericRepository<T>(StoreContext storeContext)
+        : IGenericRepository<T> where T : BaseEntity
     {
-        private readonly StoreContext _storeContext;
-
-        public GenericRepository(StoreContext storeContext) => _storeContext = storeContext;
+        private readonly StoreContext _storeContext = storeContext;
 
         public async Task<IEnumerable<T>> GetAllAsync()
             => await _storeContext.Set<T>().ToListAsync();

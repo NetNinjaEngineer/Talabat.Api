@@ -1,38 +1,39 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Talabat.Api.Errors;
 using Talabat.Core.Entities;
 using Talabat.Core.Repositories;
 using Talabat.Core.Specifications;
 
-namespace Talabat.Api.Controllers
+namespace Talabat.Api.Controllers;
+
+public class ProductsController : APIBaseController
 {
-    public class ProductsController : APIBaseController
+    private readonly IGenericRepository<Product> _productRepository;
+    private readonly IMapper _mapper;
+
+    public ProductsController(IGenericRepository<Product> productRepository, IMapper mapper)
     {
-        private readonly IGenericRepository<Product> _productRepository;
-        private readonly IMapper _mapper;
+        _productRepository = productRepository;
+        _mapper = mapper;
+    }
 
-        public ProductsController(IGenericRepository<Product> productRepository, IMapper mapper)
-        {
-            _productRepository = productRepository;
-            _mapper = mapper;
-        }
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<ProductToReturnDto>>> GetAllProductsAsync()
+    {
+        var specification = new ProductWithTypeAndBrandSpecifications();
+        var products = await _productRepository.GetAllWithSpecificationAsync(specification);
+        var productsToReturn = _mapper.Map<IEnumerable<ProductToReturnDto>>(products);
+        return Ok(productsToReturn);
+    }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductToReturnDto>>> GetAllProductsAsync()
-        {
-            var specification = new ProductWithTypeAndBrandSpecifications();
-            var products = await _productRepository.GetAllWithSpecificationAsync(specification);
-            var productsToReturn = _mapper.Map<IEnumerable<ProductToReturnDto>>(products);
-            return Ok(productsToReturn);
-        }
-
-        [HttpGet("{id:int}")]
-        public async Task<ActionResult<ProductToReturnDto>> GetProductById(int id)
-        {
-            var specification = new ProductWithTypeAndBrandSpecifications(id);
-            var product = await _productRepository.GetByIdWithSpecification(specification);
-            var mappedProduct = _mapper.Map<Product, ProductToReturnDto>(product);
-            return Ok(mappedProduct);
-        }
+    [HttpGet("{id:int}")]
+    public async Task<ActionResult<ProductToReturnDto>> GetProductById(int id)
+    {
+        var specification = new ProductWithTypeAndBrandSpecifications(id);
+        var product = await _productRepository.GetByIdWithSpecification(specification);
+        if (product is null) return NotFound(new ApiResponse(404));
+        var mappedProduct = _mapper.Map<Product, ProductToReturnDto>(product);
+        return Ok(mappedProduct);
     }
 }
