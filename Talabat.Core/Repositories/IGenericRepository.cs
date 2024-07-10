@@ -1,17 +1,16 @@
 ﻿using Talabat.Core.Entities;
 using Talabat.Core.Specifications;
 
-namespace Talabat.Core.Repositories
+namespace Talabat.Core.Repositories;
+
+public interface IGenericRepository<T> where T : BaseEntity
 {
-    public interface IGenericRepository<T> where T : BaseEntity
-    {
-        Task<IEnumerable<T>> GetAllAsync();
+    Task<IReadOnlyList<T>> GetAllAsync();
 
-        Task<T> GetByIdAsync(int id);
+    Task<T> GetByIdAsync(int id);
 
-        Task<IEnumerable<T>> GetAllWithSpecificationAsync(ISpecification<T> specification);
+    Task<IReadOnlyList<T>> GetAllWithSpecificationAsync(ISpecification<T> specification);
 
-        Task<T> GetByIdWithSpecification(ISpecification<T> specification);
+    Task<T> GetByIdWithSpecification(ISpecification<T> specification);
 
-    }
 }

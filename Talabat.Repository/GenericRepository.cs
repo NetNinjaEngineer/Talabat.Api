@@ -11,13 +11,13 @@ namespace Talabat.Repository
     {
         private readonly StoreContext _storeContext = storeContext;
 
-        public async Task<IEnumerable<T>> GetAllAsync()
+        public async Task<IReadOnlyList<T>> GetAllAsync()
             => await _storeContext.Set<T>().ToListAsync();
 
         public async Task<T> GetByIdAsync(int id)
             => await _storeContext.Set<T>().FindAsync(id);
 
-        public async Task<IEnumerable<T>> GetAllWithSpecificationAsync(ISpecification<T> specification)
+        public async Task<IReadOnlyList<T>> GetAllWithSpecificationAsync(ISpecification<T> specification)
             => await ApplySpecification(specification).ToListAsync();
 
 
