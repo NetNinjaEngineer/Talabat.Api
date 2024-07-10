@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Talabat.Api.Errors;
+using Talabat.Api.Helpers;
 using Talabat.Core.Entities;
 using Talabat.Core.Repositories;
 using Talabat.Core.Specifications;
@@ -14,12 +15,14 @@ public class ProductsController(
     IGenericRepository<ProductBrand> brandRepo) : APIBaseController
 {
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<ProductToReturnDto>>> GetAllProductsAsync(string? sort = null)
+    public async Task<ActionResult<Pagination<ProductToReturnDto>>> GetAllProductsAsync([FromQuery] ProductSpecParams Params)
     {
-        var specification = new ProductWithTypeAndBrandSpecifications(sort);
+        var specification = new ProductWithTypeAndBrandSpecifications(Params);
         var products = await productRepo.GetAllWithSpecificationAsync(specification);
         var productsToReturn = mapper.Map<IReadOnlyList<ProductToReturnDto>>(products);
-        return Ok(productsToReturn);
+        var productCountSpec = new ProductWithFilterationCountSpec(Params);
+        var Count = await productRepo.GetCountWithSpecAsync(productCountSpec);
+        return Ok(new Pagination<ProductToReturnDto>(Params.PageNumber, Params.PageSize, productsToReturn, Count));
     }
 
     [HttpGet("{id:int}")]

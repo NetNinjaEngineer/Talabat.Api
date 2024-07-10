@@ -13,15 +13,18 @@ namespace Talabat.Repository
             if (specification.Criteria is not null)
                 query = query.Where(specification.Criteria);
 
-            if (specification.Includes is not null)
-                query = specification.Includes.Aggregate(query, (currecntQuery, includeExpression)
-                    => currecntQuery.Include(includeExpression));
-
             if (specification.OrderBy is not null)
                 query = query.OrderBy(specification.OrderBy);
 
             if (specification.OrderByDescending is not null)
                 query = query.OrderByDescending(specification.OrderByDescending);
+
+            if (specification.IsPaginationEnabled)
+                query = query.Skip(specification.Skip).Take(specification.Take);
+
+            if (specification.Includes is not null)
+                query = specification.Includes.Aggregate(query, (currecntQuery, includeExpression)
+                    => currecntQuery.Include(includeExpression));
 
             return query;
 
