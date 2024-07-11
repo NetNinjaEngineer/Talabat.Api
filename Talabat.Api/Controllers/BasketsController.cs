@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Talabat.Api.Errors;
 using Talabat.Core.Entities;
 using Talabat.Core.Repositories;
 
 namespace Talabat.Api.Controllers;
+[Authorize]
 [Route("api/[controller]")]
 [ApiController]
 public class BasketsController : ControllerBase

@@ -1,9 +1,12 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
 using System.Text.Json.Serialization;
 using Talabat.Api.Extensions;
 using Talabat.Api.Middlewares;
+using Talabat.Core.Entities.Identity;
 using Talabat.Repository.Data;
+using Talabat.Repository.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,10 +14,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers()
     .AddJsonOptions(options => options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerServices();
 builder.Services.AddDbContext<StoreContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 builder.Services.AddApplicationServices();
+
+builder.Services.AddIdentityServices(builder.Configuration);
 
 builder.Services.AddSingleton<IConnectionMultiplexer>(options =>
 {
@@ -35,9 +41,15 @@ try
 {
     var dbContext = services.GetRequiredService<StoreContext>();
     await dbContext.Database.MigrateAsync();
+
+    var identityDbContext = services.GetRequiredService<AppIdentityDbContext>();
+    await identityDbContext.Database.MigrateAsync();
+
     #region Seed database
     await StoreContextSeed.SeedDatabaseAsync(dbContext);
     #endregion
+    var userManager = services.GetRequiredService<UserManager<AppUser>>();
+    await AppIdentityDbContextSeed.SeedUserAsync(userManager);
 }
 catch (Exception ex)
 {
@@ -53,16 +65,18 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerMiddlewares();
 }
 
+app.UseStatusCodePagesWithRedirects("/errors/{0}");
+
+app.UseHttpsRedirection();
+
+app.UseStaticFiles();
+
 app.UseCors(options =>
     options.AllowAnyHeader()
     .AllowAnyMethod()
     .AllowAnyOrigin());
 
-app.UseStatusCodePagesWithRedirects("/errors/{0}");
-
-app.UseStaticFiles();
-
-app.UseHttpsRedirection();
+app.UseAuthentication();
 
 app.UseAuthorization();
 
