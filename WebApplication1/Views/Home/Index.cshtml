@@ -1,0 +1,20 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<h2>Streaming Products</h2>
+<button id="startButton">Start Streaming</button>
+<pre id="streamOutput"></pre>
+
+<script>
+    document.getElementById("startButton").addEventListener("click", function() {
+        const eventSource = new EventSource('/Home/StreamProducts');
+        eventSource.onmessage = function(event) {
+            document.getElementById("streamOutput").textContent += event.data + "\n";
+        };
+        eventSource.onerror = function(event) {
+            console.error("EventSource failed:", event);
+            eventSource.close();
+        };
+    });
+</script>

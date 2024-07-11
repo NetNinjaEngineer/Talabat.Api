@@ -35,5 +35,10 @@ namespace Talabat.Repository
         {
             return await ApplySpecification(specification).CountAsync();
         }
+
+        public IAsyncEnumerable<T> GetAll()
+        {
+            return _storeContext.Set<T>().AsAsyncEnumerable();
+        }
     }
 }

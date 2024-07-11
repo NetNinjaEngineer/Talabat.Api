@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using StackExchange.Redis;
 using System.Text.Json.Serialization;
 using Talabat.Api.Extensions;
 using Talabat.Api.Middlewares;
@@ -14,6 +15,14 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<StoreContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddApplicationServices();
+
+builder.Services.AddSingleton<IConnectionMultiplexer>(options =>
+{
+    var connection = builder.Configuration.GetConnectionString("RedisConnection");
+    return ConnectionMultiplexer.Connect(connection!);
+});
+
+builder.Services.AddCors();
 #endregion
 
 var app = builder.Build();
@@ -43,6 +52,11 @@ if (app.Environment.IsDevelopment())
     app.UseMiddleware<ExceptionHandingMiddleware>();
     app.UseSwaggerMiddlewares();
 }
+
+app.UseCors(options =>
+    options.AllowAnyHeader()
+    .AllowAnyMethod()
+    .AllowAnyOrigin());
 
 app.UseStatusCodePagesWithRedirects("/errors/{0}");
 

@@ -30,6 +30,8 @@ public static class ApplicationServiceExtension
             };
         });
 
+        services.AddScoped<IBasketRepository, BasketRepository>();
+
 
         return services;
     }
