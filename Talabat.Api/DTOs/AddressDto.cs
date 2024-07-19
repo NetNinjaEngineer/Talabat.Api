@@ -1,10 +1,17 @@
-﻿namespace Talabat.Api.DTOs;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Talabat.Api.DTOs;
 
 public class AddressDto
 {
-    public string? FirstName { get; set; }
-    public string? LastName { get; set; }
-    public string? City { get; set; }
-    public string? Streat { get; set; }
-    public string? Country { get; set; }
+    [Required]
+    public string FirstName { get; set; }
+    [Required]
+    public string LastName { get; set; }
+    [Required]
+    public string City { get; set; }
+    [Required]
+    public string Street { get; set; }
+    [Required]
+    public string Country { get; set; }
 }

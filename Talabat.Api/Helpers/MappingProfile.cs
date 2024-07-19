@@ -3,6 +3,8 @@ using Talabat.Api.DTOs;
 using Talabat.Api.Helpers;
 using Talabat.Core.Entities;
 using Talabat.Core.Entities.Identity;
+using IdentityAddress = Talabat.Core.Entities.Identity.Address;
+using OrderAddress = Talabat.Core.Entities.OrderAggregate.Address;
 
 namespace Talabat.Api;
 
@@ -16,7 +18,8 @@ public class MappingProfile : Profile
             .ForMember(p => p.PictureUrl, options => options.MapFrom<ProductPictureUrlResolver>());
 
         CreateMap<AppUser, UserDto>();
-        CreateMap<Address, AddressDto>().ReverseMap();
+        CreateMap<IdentityAddress, AddressDto>().ReverseMap();
+        CreateMap<AddressDto, OrderAddress>();
         CreateMap<BasketItemDto, BasketItem>();
         CreateMap<CustomerBasketDto, CustomerBasket>();
 
