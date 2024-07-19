@@ -40,5 +40,8 @@ namespace Talabat.Repository
         {
             return _storeContext.Set<T>().AsAsyncEnumerable();
         }
+
+        public async Task Add(T entity)
+            => await _storeContext.Set<T>().AddAsync(entity);
     }
 }

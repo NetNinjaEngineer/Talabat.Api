@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using Talabat.Api.DTOs;
 using Talabat.Api.Errors;
+using Talabat.Api.Extensions;
 using Talabat.Core.Entities.Identity;
 using Talabat.Core.Services;
 
@@ -15,20 +18,26 @@ public class AccountController : ControllerBase
     private readonly UserManager<AppUser> _userManager;
     private readonly SignInManager<AppUser> _signInManager;
     private readonly ITokenService _tokenService;
+    private readonly IMapper _mapper;
 
     public AccountController(
         UserManager<AppUser> userManager,
         SignInManager<AppUser> signInManager,
-        ITokenService tokenService)
+        ITokenService tokenService,
+        IMapper mapper)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _tokenService = tokenService;
+        _mapper = mapper;
     }
 
     [HttpPost("Register")]
     public async Task<ActionResult<UserDto>> Register(RegisterDto model)
     {
+        if (CheckEmailExists(model.Email).Result.Value)
+            return BadRequest(new ApiResponse(400, message: "User Email is Already in use."));
+
         var user = new AppUser
         {
             DisplayName = model.DisplayName,
@@ -69,5 +78,45 @@ public class AccountController : ControllerBase
 
     private async Task<string> GetJwtToken(AppUser user)
         => await _tokenService.CreateTokenAsync(user, _userManager);
+
+    [Authorize]
+    [HttpGet("GetCurrentUser")]
+    public async Task<ActionResult<UserDto>> GetCurrentUser()
+    {
+        var email = User.FindFirstValue(ClaimTypes.Email);
+        var currentUser = await _userManager.FindByEmailAsync(email!);
+        var mappedUser = _mapper.Map<UserDto>(currentUser);
+        mappedUser.Token = await GetJwtToken(currentUser!);
+        return Ok(mappedUser);
+    }
+
+    [Authorize]
+    [HttpGet("GetCurrentUserAddress")]
+    public async Task<ActionResult<AddressDto>> GetCurrentUserAddress()
+    {
+        var address = (await _userManager.GetUserWithAddressAsync(User))?.Address;
+        var mappedAddress = _mapper.Map<AddressDto>(address);
+        return Ok(mappedAddress);
+    }
+
+    [Authorize]
+    [HttpPut("Address")]
+    public async Task<ActionResult<AddressDto>> UpdateUserAddress(AddressDto UpdatedAddress)
+    {
+        var currentUser = await _userManager.GetUserWithAddressAsync(User);
+        if (currentUser is null) return Unauthorized(new ApiResponse(401));
+        var address = _mapper.Map<Address>(UpdatedAddress);
+        address.Id = currentUser.Address.Id;
+        currentUser.Address = address;
+        var result = await _userManager.UpdateAsync(currentUser);
+        if (!result.Succeeded) return BadRequest(new ApiResponse(400));
+        return Ok(UpdatedAddress);
+    }
+
+    [HttpGet("CheckEmailExists")]
+    public async Task<ActionResult<bool>> CheckEmailExists(string email)
+    {
+        return await _userManager.FindByEmailAsync(email) is not null;
+    }
 
 }
