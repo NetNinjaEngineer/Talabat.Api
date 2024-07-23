@@ -22,7 +22,7 @@ public class OrdersController : APIBaseController
     }
 
     [HttpPost]
-    public async Task<ActionResult<Order>> CreateOrder(OrderDto orderDto)
+    public async Task<ActionResult<OrderToReturnDto>> CreateOrder(OrderDto orderDto)
     {
         var BuyerEmail = User.FindFirstValue(ClaimTypes.Email);
         var MappedAddress = _mapper.Map<Address>(orderDto.ShippingAddress);
@@ -33,30 +33,32 @@ public class OrdersController : APIBaseController
             MappedAddress);
 
         if (order is null) return BadRequest(new ApiResponse(400, "There is a problem with your order."));
-
-        return Ok(order);
+        var mappedOrder = _mapper.Map<OrderToReturnDto>(order);
+        return Ok(mappedOrder);
     }
 
     [HttpGet]
-    [ProducesResponseType(typeof(IReadOnlyList<Order>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IReadOnlyList<OrderToReturnDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<IReadOnlyList<Order>>> GetOrdersForUser()
+    public async Task<ActionResult<IReadOnlyList<OrderToReturnDto>>> GetOrdersForUser()
     {
         var BuyerEmail = User.FindFirstValue(ClaimTypes.Email);
         var Orders = await _orderService.GetOrderForSpecificUserAsync(BuyerEmail!);
         if (Orders is null) return NotFound(new ApiResponse(404, "There is no orders for this user."));
-        return Ok(Orders);
+        var MappedOrders = _mapper.Map<IReadOnlyList<OrderToReturnDto>>(Orders);
+        return Ok(MappedOrders);
     }
 
     [HttpGet("{orderId:int}")]
-    [ProducesResponseType(typeof(Order), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(OrderToReturnDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<Order>> GetSpecificOrderForUser(int orderId)
+    public async Task<ActionResult<OrderToReturnDto>> GetSpecificOrderForUser(int orderId)
     {
         var BuyerEmail = User.FindFirstValue(ClaimTypes.Email);
         var order = await _orderService.GetOrderByIdForSpecificUserAsync(BuyerEmail, orderId);
         if (order is null) return NotFound(new ApiResponse(404, $"There is no order with id: {orderId}"));
-        return Ok(order);
+        var mappedOrder = _mapper.Map<OrderToReturnDto>(order);
+        return Ok(mappedOrder);
     }
 
 }
