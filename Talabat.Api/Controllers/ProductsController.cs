@@ -29,7 +29,7 @@ public class ProductsController(
     public async Task<ActionResult<ProductToReturnDto>> GetProductById(int id)
     {
         var specification = new ProductWithTypeAndBrandSpecifications(id);
-        var product = await unitOfWork.Repository<Product>().GetByIdWithSpecification(specification);
+        var product = await unitOfWork.Repository<Product>().GetEntityWithSpecification(specification);
         if (product is null) return NotFound(new ApiResponse(404));
         var mappedProduct = mapper.Map<Product, ProductToReturnDto>(product);
         return Ok(mappedProduct);

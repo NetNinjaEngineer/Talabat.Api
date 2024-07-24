@@ -29,7 +29,7 @@ public class EmployeesController : ControllerBase
     public async Task<ActionResult<IEnumerable<Employee>>> GetEmployeeAsync(int id)
     {
         var spec = new EmployeeWithDepartmentSpecification(id);
-        var employee = await _employeeRepo.GetByIdWithSpecification(spec);
+        var employee = await _employeeRepo.GetEntityWithSpecification(spec);
         return Ok(employee);
     }
 

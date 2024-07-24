@@ -10,13 +10,16 @@ public class OrderService : IOrderService
 {
     private readonly IBasketRepository _basketRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IPaymentService _paymentService;
 
     public OrderService(
         IBasketRepository basketRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        IPaymentService paymentService)
     {
         _basketRepository = basketRepository;
         _unitOfWork = unitOfWork;
+        _paymentService = paymentService;
     }
 
     public async Task<Order?> CreateOrderAsync(
@@ -52,7 +55,16 @@ public class OrderService : IOrderService
             // 4 get delivery method from delivery method repo
             var deliveryMethod = await _unitOfWork.Repository<DeliveryMethod>().GetByIdAsync(deliveryMethodId);
             // 5 create order
-            order = new Order(buyerEmail, shippingAddress, deliveryMethod, orderItems, subTotal);
+
+            var exOrderSpec = new ExOrderSpecification(basket.PaymentIntentId);
+            var ExOrder = await _unitOfWork.Repository<Order>().GetEntityWithSpecification(exOrderSpec);
+            if (ExOrder is not null)
+            {
+                _unitOfWork.Repository<Order>().Delete(ExOrder);
+                await _paymentService.CreateOrUpdatePaymentIntent(basketId);
+            }
+
+            order = new Order(buyerEmail, shippingAddress, deliveryMethod, orderItems, subTotal, basket.PaymentIntentId);
             // 6 add order locally
             await _unitOfWork.Repository<Order>().Add(order);
         }
@@ -76,7 +88,7 @@ public class OrderService : IOrderService
         string buyerEmail, int orderId)
     {
         var Spec = new OrderSpecification(buyerEmail, orderId);
-        var order = await _unitOfWork.Repository<Order>().GetByIdWithSpecification(Spec);
+        var order = await _unitOfWork.Repository<Order>().GetEntityWithSpecification(Spec);
         return order;
     }
 }
