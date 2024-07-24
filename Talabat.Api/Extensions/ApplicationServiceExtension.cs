@@ -35,6 +35,7 @@ public static class ApplicationServiceExtension
         });
 
         services.AddScoped<IBasketRepository, BasketRepository>();
+        services.AddScoped<IPaymentService, PaymentService>();
 
 
         return services;

@@ -21,8 +21,8 @@ public class MappingProfile : Profile
         CreateMap<AppUser, UserDto>();
         CreateMap<IdentityAddress, AddressDto>().ReverseMap();
         CreateMap<AddressDto, OrderAddress>();
-        CreateMap<BasketItemDto, BasketItem>();
-        CreateMap<CustomerBasketDto, CustomerBasket>();
+        CreateMap<BasketItemDto, BasketItem>().ReverseMap();
+        CreateMap<CustomerBasketDto, CustomerBasket>().ReverseMap();
 
         CreateMap<Order, OrderToReturnDto>()
             .ForMember(dest => dest.DeliveryMethod, opt => opt.MapFrom(src => src.DeliveryMethod.ShortName))

@@ -1,12 +1,10 @@
 ﻿namespace Talabat.Core.Entities;
 
-public class CustomerBasket
+public class CustomerBasket(string id)
 {
-    public CustomerBasket(string id)
-    {
-        Id = id;
-    }
-
-    public string Id { get; set; }
+    public string Id { get; set; } = id;
+    public string PaymentIntentId { get; set; }
+    public string ClientSecret { get; set; }
+    public int? DeliveryMethodId { get; set; }
     public ICollection<BasketItem> BasketItems { get; set; } = [];
 }
