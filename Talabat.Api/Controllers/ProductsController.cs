@@ -12,6 +12,7 @@ public class ProductsController(
     IMapper mapper,
     IUnitOfWork unitOfWork) : APIBaseController
 {
+    [Cached(300)]
     [HttpGet]
     public async Task<ActionResult<Pagination<ProductToReturnDto>>> GetAllProductsAsync([FromQuery] ProductSpecParams Params)
     {
@@ -23,6 +24,7 @@ public class ProductsController(
         return Ok(new Pagination<ProductToReturnDto>(Params.PageNumber, Params.PageSize, productsToReturn, Count));
     }
 
+    [Cached(300)]
     [HttpGet("{id:int}")]
     [ProducesResponseType(typeof(ProductToReturnDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
@@ -35,6 +37,7 @@ public class ProductsController(
         return Ok(mappedProduct);
     }
 
+    [Cached(300)]
     [HttpGet("Types")]
     public async Task<ActionResult<IReadOnlyList<ProductType>>> GetAllTypes()
     {
@@ -42,6 +45,7 @@ public class ProductsController(
         return Ok(types);
     }
 
+    [Cached(300)]
     [HttpGet("Brands")]
     public async Task<ActionResult<IReadOnlyList<ProductBrand>>> GetBrands()
     {
