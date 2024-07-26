@@ -40,7 +40,6 @@ builder.Services.AddStackExchangeRedisCache(options =>
 
 builder.Services.AddSingleton<IDistributedRedisCacheService, DistributedRedisCacheService>();
 
-
 #endregion
 
 var app = builder.Build();

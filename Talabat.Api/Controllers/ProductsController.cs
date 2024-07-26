@@ -13,7 +13,6 @@ public class ProductsController(
     IMapper mapper,
     IUnitOfWork unitOfWork) : APIBaseController
 {
-    [DistributedCached(300)]
     [HttpGet]
     public async Task<ActionResult<Pagination<ProductToReturnDto>>> GetAllProductsAsync([FromQuery] ProductSpecParams Params)
     {

@@ -5,6 +5,7 @@ using Talabat.Core.Services;
 
 namespace Talabat.Api.Helpers;
 
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
 public class CachedAttribute(int expireTimeInSeconds) : Attribute, IAsyncActionFilter
 {
     private readonly int expireTimeInSeconds = expireTimeInSeconds;
