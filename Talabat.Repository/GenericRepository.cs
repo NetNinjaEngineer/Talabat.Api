@@ -36,11 +36,6 @@ namespace Talabat.Repository
             return await ApplySpecification(specification).CountAsync();
         }
 
-        public IAsyncEnumerable<T> GetAll()
-        {
-            return _storeContext.Set<T>().AsAsyncEnumerable();
-        }
-
         public async Task Add(T entity)
             => await _storeContext.Set<T>().AddAsync(entity);
 

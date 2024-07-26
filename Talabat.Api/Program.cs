@@ -5,8 +5,10 @@ using System.Text.Json.Serialization;
 using Talabat.Api.Extensions;
 using Talabat.Api.Middlewares;
 using Talabat.Core.Entities.Identity;
+using Talabat.Core.Services;
 using Talabat.Repository.Data;
 using Talabat.Repository.Identity;
+using Talabat.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +31,16 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(options =>
 });
 
 builder.Services.AddCors();
+
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration.GetConnectionString("RedisConnection");
+    options.InstanceName = "SampleInstance";
+});
+
+builder.Services.AddSingleton<IDistributedRedisCacheService, DistributedRedisCacheService>();
+
+
 #endregion
 
 var app = builder.Build();
