@@ -38,12 +38,15 @@ public class AccountController : ControllerBase
         if (CheckEmailExists(model.Email).Result.Value)
             return BadRequest(new ApiResponse(400, message: "User Email is Already in use."));
 
+        var mappedUserAddress = _mapper.Map<Address>(model.Address);
+
         var user = new AppUser
         {
             DisplayName = model.DisplayName,
             Email = model.Email,
             PhoneNumber = model.PhoneNumber,
-            UserName = model.Email.Split('@')[0]
+            UserName = model.Email.Split('@')[0],
+            Address = mappedUserAddress
         };
 
         var result = await _userManager.CreateAsync(user, model.Password);
@@ -94,8 +97,8 @@ public class AccountController : ControllerBase
     [HttpGet("GetCurrentUserAddress")]
     public async Task<ActionResult<AddressDto>> GetCurrentUserAddress()
     {
-        var address = (await _userManager.GetUserWithAddressAsync(User))?.Address;
-        var mappedAddress = _mapper.Map<AddressDto>(address);
+        var currentUser = (await _userManager.GetUserWithAddressAsync(User));
+        var mappedAddress = _mapper.Map<AddressDto>(currentUser?.Address);
         return Ok(mappedAddress);
     }
 

@@ -70,9 +70,9 @@ catch (Exception ex)
 #endregion
 
 #region Configure the HTTP request pipeline. 
+app.UseMiddleware<ExceptionHandingMiddleware>();
 if (app.Environment.IsDevelopment())
 {
-    app.UseMiddleware<ExceptionHandingMiddleware>();
     app.UseSwaggerMiddlewares();
 }
 

@@ -10,8 +10,8 @@ public static class UserManagerExtensions
     public static async Task<AppUser?> GetUserWithAddressAsync(this UserManager<AppUser> UserManager, ClaimsPrincipal User)
     {
         var email = User.FindFirstValue(ClaimTypes.Email);
-        var currentUser = await UserManager.Users.Where(U => U.Email == email)
-            .Include(U => U.Address).FirstOrDefaultAsync();
+        var currentUser = await UserManager.Users.Include(U => U.Address).Where(U => U.Email == email)
+            .FirstOrDefaultAsync();
         return currentUser;
     }
 }

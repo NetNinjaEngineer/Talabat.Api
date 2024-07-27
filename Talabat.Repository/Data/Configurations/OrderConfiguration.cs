@@ -17,7 +17,18 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
             .HasColumnType("decimal(18, 2)");
 
         builder.OwnsOne(order => order.ShippingAddress,
-            x => x.WithOwner());
+            options =>
+            {
+                options.Property(x => x.Street)
+                    .HasColumnName("Street");
+
+                options.Property(x => x.City)
+                    .HasColumnName("City");
+
+                options.Property(x => x.Country)
+                    .HasColumnName("Country");
+
+            });
 
         builder.HasOne(x => x.DeliveryMethod)
             .WithMany()

@@ -10,7 +10,8 @@ namespace Talabat.Api.Controllers;
 [ApiController]
 public class PaymentsController(
     IPaymentService paymentService,
-    IMapper mapper) : ControllerBase
+    IMapper mapper,
+    IConfiguration configuration) : ControllerBase
 {
     const string endpointSecret = "whsec_ae81283d64b8015ba90590bcc738a6363f21fcac13030a6b384128e3a3cb134c";
 
@@ -24,6 +25,34 @@ public class PaymentsController(
         var MappedCustomerBasket = mapper.Map<CustomerBasketDto>(CustomerBasket);
         return Ok(MappedCustomerBasket);
     }
+
+    [HttpPost("confirm-payment-intent")]
+    public ActionResult ConfirmPaymentIntent([FromBody] ConfirmPaymentIntentRequest request)
+    {
+        StripeConfiguration.ApiKey = configuration["StripeKeys:SecretKey"];
+
+        var service = new PaymentIntentService();
+        var paymentIntent = service.Confirm(
+            request.PaymentIntentId,
+            new PaymentIntentConfirmOptions
+            {
+                PaymentMethod = request.PaymentMethodId
+            }
+        );
+
+        return Ok(paymentIntent);
+    }
+
+    [HttpPost("create-payment-method")]
+    public ActionResult CreatePaymentMethod()
+    {
+        StripeConfiguration.ApiKey = configuration["StripeKeys:SecretKey"];
+        var paymentMethod = GetPaymentMethod();
+
+        return Ok(new { paymentMethodId = paymentMethod.Id });
+    }
+
+
 
     [HttpPost("webhook")]
     public async Task<IActionResult> StripeWebHook()
@@ -56,6 +85,23 @@ public class PaymentsController(
         {
             return BadRequest();
         }
+    }
+
+
+    private static PaymentMethod GetPaymentMethod()
+    {
+        var options = new PaymentMethodCreateOptions
+        {
+            Type = "card",
+            Card = new PaymentMethodCardOptions
+            {
+                Token = "tok_visa"
+            },
+        };
+
+        var service = new PaymentMethodService();
+        PaymentMethod paymentMethod = service.Create(options);
+        return paymentMethod;
     }
 
 }
