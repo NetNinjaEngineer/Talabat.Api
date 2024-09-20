@@ -1,6 +1,25 @@
-@Talabat.Api_HostAddress = http://localhost:5113
+@Talabat.Api_HostAddress = https://localhost:7264
 
-GET {{Talabat.Api_HostAddress}}/weatherforecast/
+POST {{Talabat.Api_HostAddress}}/api/baskets/addItem?basketId=9D294A52-0A5E-432D-82E4-C8225928211D
 Accept: application/json
+Content-Type: application/json
 
+{
+  "id": 1,
+  "name": "Galaxy",
+  "pictureUrl": "https://localhost:7264",
+  "brand": "Samsung",
+  "type": "Smart Phones",
+  "price": 2560,
+  "quantity": 2
+}
+
+###
+
+GET {{Talabat.Api_HostAddress}}/api/baskets/9D294A52-0A5E-432D-82E4-C8225928211D
+Accept: application/json
+###
+
+PUT  {{Talabat.Api_HostAddress}}/api/baskets/9D294A52-0A5E-432D-82E4-C8225928211D/updateItemQuantity?productId=1&quantity=10
+Accept: application/json
 ###
